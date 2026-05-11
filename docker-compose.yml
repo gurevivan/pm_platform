@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: pm_platform
+      POSTGRES_USER: pm
+      POSTGRES_PASSWORD: pm
+    ports:
+      - "5432:5432"
+    volumes:
+      - pm_pg:/var/lib/postgresql/data
+
+volumes:
+  pm_pg:

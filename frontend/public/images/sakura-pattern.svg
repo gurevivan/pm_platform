@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="480" viewBox="0 0 480 480">
+  <defs>
+    <linearGradient id="pg" x1="0%" y1="100%" x2="30%" y2="0%">
+      <stop offset="0%" stop-color="#e8a0bc" stop-opacity="0.88"/>
+      <stop offset="45%" stop-color="#fce7f1" stop-opacity="0.92"/>
+      <stop offset="78%" stop-color="#fffafd" stop-opacity="0.78"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.55"/>
+    </linearGradient>
+    <linearGradient id="pg2" x1="20%" y1="100%" x2="70%" y2="0%">
+      <stop offset="0%" stop-color="#f472b6" stop-opacity="0.82"/>
+      <stop offset="50%" stop-color="#fbcfe8" stop-opacity="0.88"/>
+      <stop offset="100%" stop-color="#fff7fb" stop-opacity="0.65"/>
+    </linearGradient>
+    <radialGradient id="core" cx="45%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#fffdf8"/>
+      <stop offset="70%" stop-color="#fcebf4"/>
+      <stop offset="100%" stop-color="#f9b4d4" stop-opacity="0.5"/>
+    </radialGradient>
+    <filter id="blur-soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="0.6"/>
+    </filter>
+    <filter id="bloom" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <!-- sakura petal: notch at tip, fuller base -->
+    <path id="petal" fill="url(#pg)" d="M 0 15
+       C -12 11 -21 -14 -17 -38 C -13 -54 -6 -61 -2 -64 L 0 -74 L 2 -64
+       C 6 -61 13 -54 17 -38 C 21 -14 12 11 0 15 Z"/>
+  </defs>
+
+  <!-- faint branches -->
+  <g stroke="#7c5568" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="0.22" filter="url(#blur-soft)">
+    <path d="M -20 520 Q 140 340 220 260"/>
+    <path d="M 460 -30 Q 300 140 168 298"/>
+    <path d="M 390 420 Q 280 340 208 278"/>
+  </g>
+
+  <!-- large bloom -->
+  <g transform="translate(158 148)" filter="url(#bloom)">
+    <g opacity="0.38">
+      <use href="#petal" transform="rotate(0)"/>
+      <use href="#petal" transform="rotate(72)"/>
+      <use href="#petal" transform="rotate(144)"/>
+      <use href="#petal" transform="rotate(216)"/>
+      <use href="#petal" transform="rotate(288)"/>
+    </g>
+    <circle cx="0" cy="0" r="11" fill="url(#core)"/>
+    <g filter="url(#blur-soft)" opacity="0.82">
+      <circle cx="-3.5" cy="-2.5" r="1.45" fill="#fde68a"/>
+      <circle cx="2" cy="-3.8" r="1.3" fill="#fcd34d"/>
+      <circle cx="3.8" cy="1" r="1.4" fill="#fbbf24"/>
+      <circle cx="-0.5" cy="4" r="1.2" fill="#fde68a"/>
+      <circle cx="-3.8" cy="2.5" r="1.1" fill="#f59e0b"/>
+      <circle cx="1.2" cy="3.8" r="1.05" fill="#fcd34d"/>
+      <ellipse cx="-1.5" cy="-4.8" rx="1.85" ry="1.2" fill="#fbbf24" opacity="0.9"/>
+      <ellipse cx="4.2" cy="-1.8" rx="1.7" ry="1.1" fill="#fde047" opacity="0.85"/>
+    </g>
+  </g>
+
+  <!-- second bloom, warmer -->
+  <g transform="translate(318 302) rotate(18)" filter="url(#bloom)">
+    <g opacity="0.32">
+      <g fill="url(#pg2)" transform="scale(0.92)">
+        <use href="#petal" transform="rotate(6) scale(1.03)"/>
+        <use href="#petal" transform="rotate(78) scale(1.03)"/>
+        <use href="#petal" transform="rotate(150) scale(1.03)"/>
+        <use href="#petal" transform="rotate(222) scale(1.03)"/>
+        <use href="#petal" transform="rotate(294) scale(1.03)"/>
+      </g>
+    </g>
+    <circle cx="0" cy="0" r="9.5" fill="url(#core)"/>
+    <g fill="#f59e0b" opacity="0.32" filter="url(#blur-soft)">
+      <circle cx="-2.5" cy="-2" r="1"/>
+      <circle cx="3" cy="-1.5" r="0.9"/>
+      <circle cx="2" cy="2.5" r="0.85"/>
+      <circle cx="-2.8" cy="2" r="0.8"/>
+    </g>
+  </g>
+
+  <!-- smaller bloom -->
+  <g transform="translate(72 356) rotate(-35) scale(0.58)" opacity="0.36" filter="url(#bloom)">
+    <g>
+      <use href="#petal" fill="url(#pg)" transform="rotate(0)"/>
+      <use href="#petal" fill="url(#pg)" transform="rotate(72)"/>
+      <use href="#petal" fill="url(#pg)" transform="rotate(144)"/>
+      <use href="#petal" fill="url(#pg)" transform="rotate(216)"/>
+      <use href="#petal" fill="url(#pg)" transform="rotate(288)"/>
+    </g>
+    <circle cx="0" cy="0" r="7.5" fill="url(#core)"/>
+  </g>
+
+  <g transform="translate(392 118) rotate(94) scale(0.52)" opacity="0.33" filter="url(#bloom)">
+    <g fill="url(#pg2)">
+      <use href="#petal" transform="rotate(0)"/>
+      <use href="#petal" transform="rotate(72)"/>
+      <use href="#petal" transform="rotate(144)"/>
+      <use href="#petal" transform="rotate(216)"/>
+      <use href="#petal" transform="rotate(288)"/>
+    </g>
+    <circle cx="0" cy="0" r="7" fill="url(#core)"/>
+  </g>
+
+  <!-- loose petals -->
+  <g opacity="0.28" fill="url(#pg)">
+    <ellipse cx="120" cy="72" rx="10" ry="22" transform="rotate(-38 120 72)" filter="url(#blur-soft)"/>
+    <ellipse cx="248" cy="380" rx="8" ry="19" transform="rotate(52 248 380)"/>
+    <ellipse cx="400" cy="188" rx="7" ry="16" transform="rotate(-22 400 188)"/>
+    <ellipse cx="54" cy="228" rx="6" ry="14" transform="rotate(112 54 228)"/>
+    <ellipse cx="428" cy="392" rx="9" ry="20" transform="rotate(18 428 392)"/>
+  </g>
+
+  <!-- bud -->
+  <g transform="translate(242 418) rotate(12)" opacity="0.3">
+    <ellipse cx="0" cy="-4" rx="9" ry="14" fill="url(#pg2)" filter="url(#blur-soft)"/>
+    <ellipse cx="-5" cy="2" rx="6" ry="11" fill="url(#pg)" transform="rotate(-40)"/>
+    <ellipse cx="5" cy="2" rx="6" ry="11" fill="url(#pg)" transform="rotate(40)"/>
+  </g>
+</svg>
