@@ -63,8 +63,61 @@ else
     warn "SECRET_KEY уже задан — пропускаем"
 fi
 
-# ── 5. Создание Docker-сети и volumes ────────────────────────────
-docker network create pm_net 2>/dev/null && ok "Создана Docker-сеть pm_net" || warn "Сеть pm_net уже существует"
+# ── 4б. Авто-добавление IP сервера в .env ───────────────────────
+SERVER_IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+if [ -n "$SERVER_IP" ] && [ "$SERVER_IP" != "127.0.0.1" ]; then
+    CURRENT_HOSTS=$(grep "^DJANGO_ALLOWED_HOSTS=" "$ENV_FILE" | cut -d'=' -f2-)
+    if ! printf '%s' "$CURRENT_HOSTS" | tr ',' '\n' | grep -qx "$SERVER_IP"; then
+        TMP=$(mktemp)
+        while IFS= read -r line; do
+            case "$line" in
+                DJANGO_ALLOWED_HOSTS=*) printf '%s,%s\n' "$line" "$SERVER_IP" >> "$TMP" ;;
+                CORS_ALLOWED_ORIGINS=*) printf '%s,http://%s\n' "$line" "$SERVER_IP" >> "$TMP" ;;
+                CSRF_TRUSTED_ORIGINS=*) printf '%s,http://%s\n' "$line" "$SERVER_IP" >> "$TMP" ;;
+                *) printf '%s\n' "$line" >> "$TMP" ;;
+            esac
+        done < "$ENV_FILE"
+        mv "$TMP" "$ENV_FILE"
+        ok "IP-адрес сервера ($SERVER_IP) добавлен в backend/.env"
+    else
+        warn "IP-адрес сервера ($SERVER_IP) уже есть в backend/.env"
+    fi
+fi
+
+# ── 5. Выбор Docker-сети ─────────────────────────────────────────
+echo ""
+EXISTING_NETS=$(docker network ls --format "{{.Name}}" | grep -v -E "^(bridge|host|none)$" | sort)
+if [ -n "$EXISTING_NETS" ]; then
+    echo "Существующие Docker-сети на этом сервере:"
+    echo "$EXISTING_NETS" | sed 's/^/  /'
+    echo ""
+fi
+echo "Выберите Docker-сеть для PM Platform:"
+echo "  [Enter] — создать новую сеть pm_net"
+echo "  или введите имя существующей сети (например: shared_network)"
+printf "Ваш выбор: "
+read -r NET_CHOICE
+
+if [ -z "$NET_CHOICE" ]; then
+    if docker network inspect pm_net &>/dev/null; then
+        warn "Сеть pm_net уже существует — используем её"
+        PM_NETWORK="pm_net"
+    else
+        if docker network create --subnet 172.30.0.0/24 pm_net > /dev/null; then
+            ok "Создана Docker-сеть pm_net (172.30.0.0/24)"
+            PM_NETWORK="pm_net"
+        else
+            die "Не удалось создать сеть pm_net. Пул адресов Docker исчерпан.\nРешение: введите имя существующей сети (см. список выше) или выполните: docker network prune -f"
+        fi
+    fi
+else
+    docker network inspect "$NET_CHOICE" &>/dev/null \
+        || die "Сеть '$NET_CHOICE' не найдена. Проверьте имя: docker network ls"
+    ok "Используем существующую сеть: $NET_CHOICE"
+    PM_NETWORK="$NET_CHOICE"
+fi
+
+# ── 5б. Volumes ──────────────────────────────────────────────────
 docker volume create pm_pg     > /dev/null && ok "Создан volume pm_pg (база данных)"      || warn "Volume pm_pg уже существует"
 docker volume create pm_static > /dev/null && ok "Создан volume pm_static (статика)"      || warn "Volume pm_static уже существует"
 docker volume create pm_media  > /dev/null && ok "Создан volume pm_media (загруженные файлы)" || warn "Volume pm_media уже существует"
@@ -78,7 +131,7 @@ if docker inspect pm_db &>/dev/null 2>&1; then
 else
     docker run -d \
         --name pm_db \
-        --network pm_net \
+        --network "$PM_NETWORK" \
         --restart always \
         -e POSTGRES_DB=pm_platform \
         -e POSTGRES_USER=pm \
@@ -101,7 +154,7 @@ if docker inspect pm_backend_app &>/dev/null 2>&1; then
 fi
 docker run -d \
     --name pm_backend_app \
-    --network pm_net \
+    --network "$PM_NETWORK" \
     --restart always \
     --env-file "$ENV_FILE" \
     -v pm_static:/app/staticfiles \
@@ -122,7 +175,7 @@ if docker inspect pm_frontend_app &>/dev/null 2>&1; then
 fi
 docker run -d \
     --name pm_frontend_app \
-    --network pm_net \
+    --network "$PM_NETWORK" \
     --restart always \
     -p 80:80 \
     -v pm_static:/vol/static:ro \
